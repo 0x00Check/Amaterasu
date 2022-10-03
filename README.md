@@ -2,6 +2,8 @@
 ## Description
 Amaterasu terminates, or inhibits, protected processes such as application control and AV/EDR solutions by leveraging the Sysinternals Process Explorer driver to kill a process's handles from kernel mode. For protected processes which attempt to restore its handles or restarts itself, supply a process name (partial match) and Amaterasu will continuously kill any handles that are associated with that name until you tell it to stop [ESC]. Otherwise, supply the process ID and Amaterasu will stop after the process is terminated.
 
+*While Amaterasu isn't inherently malicious you should be mindful with its use. I am not liable for damages or loss of data resulting from this resource.*
+
 ![IoControlCode](Images/IoControlCode.png)
 ![CloseHandle](Images/CloseHandle.png)
 
