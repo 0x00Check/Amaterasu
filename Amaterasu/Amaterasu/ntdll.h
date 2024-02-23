@@ -1,10 +1,10 @@
 #pragma once
 
 extern "C" {
-    #include <Windows.h>
-    #include <ntstatus.h>
-    #include <intrin.h>
-    #include <Psapi.h>
+#include <Windows.h>
+#include <ntstatus.h>
+#include <intrin.h>
+#include <Psapi.h>
 
     typedef struct _UNICODE_STRING {
         USHORT Length;
