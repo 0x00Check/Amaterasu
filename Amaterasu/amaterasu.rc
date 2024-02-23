@@ -1,3 +1,0 @@
-#include "resource.h"
-
-IDR_DRIVER RCDATA "PROCEXP152.sys"
